@@ -1,0 +1,35 @@
+pipeline {
+    agent any
+environment {
+        AWS_DEFAULT_REGION = 'us-west-2'
+    }
+stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'master', url: 'https://github.com/Chandan-Mohanty555/terraformTask-eks.git'
+            }
+        }
+stage('Terraform Init') {
+            steps {
+                sh 'terraform init'
+            }
+        }
+stage('Terraform Plan') {
+            steps {
+                sh 'terraform plan -out=tfplan'
+            }
+        }
+stage('Terraform Apply') {
+            steps {
+                input message: 'Approve infrastructure changes?', ok: 'Apply'
+                sh 'terraform apply tfplan'
+            }
+        }
+
+    }
+post {
+        always {
+            cleanWs()
+        }
+    }
+}
